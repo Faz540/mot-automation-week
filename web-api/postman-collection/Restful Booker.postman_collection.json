@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "API: Auth",
+			"name": "Controller: Auth",
 			"item": [
 				{
 					"name": "BEFORE ALL:",
@@ -1169,7 +1169,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "API: Branding",
+			"name": "Controller: Branding",
 			"item": [
 				{
 					"name": "BEFORE ALL:",
@@ -2205,7 +2205,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "API: Booking",
+			"name": "Controller: Booking",
 			"item": [
 				{
 					"name": "BEFORE ALL:",
@@ -4878,7 +4878,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "API: Report",
+			"name": "Controller: Report",
 			"item": [
 				{
 					"name": "BEFORE ALL:",
@@ -4951,6 +4951,56 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[200] Login - Success",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "5db6baf7-b2eb-4414-a70a-d4b1d413c2a5",
+										"exec": [
+											"const body = pm.response.json();",
+											"const statusCode = pm.response.code;",
+											"",
+											"pm.test(\"Status Code returned is 200\", function() {",
+											"    pm.expect(statusCode).to.equal(200);",
+											"});",
+											"",
+											"pm.test(\"Token is returned\", function() {",
+											"    pm.expect(body).to.have.property(\"token\");",
+											"    pm.expect(body.token).to.not.be.empty;",
+											"    pm.environment.set(\"token\", body.token);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hostAuth}}/auth/login",
+									"host": [
+										"{{hostAuth}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"protocolProfileBehavior": {},
@@ -5015,7 +5065,7 @@
 							"response": []
 						},
 						{
-							"name": "[201] Create Booking - Room 102",
+							"name": "[201] Create Booking - Room 101",
 							"event": [
 								{
 									"listen": "test",
@@ -5039,7 +5089,7 @@
 									"script": {
 										"id": "405aded6-5a92-4564-aaf5-e92d2c2a5b4a",
 										"exec": [
-											"pm.environment.set(\"roomId\", 2);",
+											"pm.environment.set(\"roomId\", 1);",
 											"",
 											"const moment = require(\"moment\");",
 											"",
@@ -5080,7 +5130,7 @@
 							"response": []
 						},
 						{
-							"name": "[200] View All Room Reports - Confirm Room 102 Booking",
+							"name": "[200] View All Room Reports - Confirm New Booking",
 							"event": [
 								{
 									"listen": "test",
@@ -5470,14 +5520,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{hostReport}}/report/room/{{roomId}}",
+									"raw": "{{hostReport}}/report/room/2",
 									"host": [
 										"{{hostReport}}"
 									],
 									"path": [
 										"report",
 										"room",
-										"{{roomId}}"
+										"2"
 									]
 								}
 							},
@@ -5659,7 +5709,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "API: Messaging",
+			"name": "Controller: Messaging",
 			"item": [
 				{
 					"name": "BEFORE ALL:",
@@ -7244,6 +7294,1627 @@
 					"listen": "test",
 					"script": {
 						"id": "1a10eb14-f8ee-4f5c-86ae-829d5a587ddb",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Controller: Room",
+			"item": [
+				{
+					"name": "BEFORE ALL:",
+					"item": [
+						{
+							"name": "REMOVE ENV VARS",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "5b7f61f4-3b32-42c9-8a77-8cf1f04ce62c",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "935061be-2f23-4510-b50c-a70f33d774ab",
+										"exec": [
+											"// Function that removes all Env Vars apart from the 'hosts'",
+											"(function () {",
+											"    // Get all the names of our env variables and put them in an array",
+											"    const environmentVariables = pm.environment.values.map(function (variable) {",
+											"        return variable.key;",
+											"    });",
+											"    // Filter through the above array but don't add variables that:",
+											"    // - Contain the string 'host' in the variable name",
+											"    const removeTheseVariables = environmentVariables.filter(function (variable) {",
+											"        return !variable.includes(\"host\");",
+											"    });",
+											"    // Now go through this new array and null these env variables",
+											"    return removeTheseVariables.forEach(function (variableName) {",
+											"        pm.environment.unset(variableName);",
+											"    });",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://postman-echo.com/delay/0",
+									"protocol": "https",
+									"host": [
+										"postman-echo",
+										"com"
+									],
+									"path": [
+										"delay",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "All Rooms",
+					"item": [
+						{
+							"name": "[200] View All Rooms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "3a6ea249-2151-421e-9cb5-041f6046d5a2",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"pm.test(\"Status Code returned is 200\", function () {",
+											"    pm.expect(statusCode).to.equal(200);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'All Rooms' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaAllRooms\"));",
+											"});",
+											"",
+											"pm.test(\"The 'rooms' array contains 1 room\", function () {",
+											"    pm.expect(body.rooms).to.have.a.lengthOf(1);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hostRoom}}/room/",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3fe6c737-9b2c-4261-83ff-46a3b3a681c9",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "e015ddf4-83d2-4a92-bd90-6a49a5209592",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Create Room",
+					"item": [
+						{
+							"name": "BEFORE ALL:",
+							"item": [
+								{
+									"name": "[200] Login - Success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "96bcb0db-7780-4604-b3c1-e66d509f43c2",
+												"exec": [
+													"const body = pm.response.json();",
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 200\", function() {",
+													"    pm.expect(statusCode).to.equal(200);",
+													"});",
+													"",
+													"pm.test(\"Token is returned\", function() {",
+													"    pm.expect(body).to.have.property(\"token\");",
+													"    pm.expect(body.token).to.not.be.empty;",
+													"    pm.environment.set(\"token\", body.token);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostAuth}}/auth/login",
+											"host": [
+												"{{hostAuth}}"
+											],
+											"path": [
+												"auth",
+												"login"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "[201] Create Room - Room 666",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "9715d6a9-f301-4740-b6c8-a55637a4d7fe",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"pm.test(\"Status Code returned is 201\", function () {",
+											"    pm.expect(statusCode).to.equal(201);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+											"    pm.environment.set(\"roomId\", body.roomid);",
+											"});",
+											"",
+											"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"roomNumber\", 666);",
+											"});",
+											"",
+											"pm.test(\"The 'type' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"type\", \"Double\");",
+											"});",
+											"",
+											"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"accessible\", false);",
+											"});",
+											"",
+											"pm.test(\"The 'image' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\");",
+											"});",
+											"",
+											"pm.test(\"The 'description' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"description\", \"Example description goes here\");",
+											"});",
+											"",
+											"pm.test(\"The 'features' array contains the desired values\", function () {",
+											"    pm.expect(body.features).to.contain(\"TV\");",
+											"    pm.expect(body.features).to.contain(\"WiFi\");",
+											"});",
+											"",
+											"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"roomPrice\", 50);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Cookie",
+										"value": "token={{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 666,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hostRoom}}/room/",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[202] Delete Room - Room 666",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7a737562-3e8f-4437-8d82-d2ae949e9e70",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"",
+											"pm.test(\"Status Code returned is 202\", function () {",
+											"    pm.expect(statusCode).to.equal(202);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Cookie",
+										"type": "text",
+										"value": "token={{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hostRoom}}/room/{{roomId}}",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"{{roomId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "View Specific Room",
+					"item": [
+						{
+							"name": "[404] View Specific Room - Does Not Exist",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "6624291b-6bf2-4cc2-a034-af3b50d25bc0",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"// We are receiving a 500. Shouldn't this be a 404?",
+											"pm.test(\"KNOWN FAILURE - Status Code returned is 404\", function () {",
+											"    pm.expect(statusCode).to.equal(404);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'Room Error' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoomError\"));",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "ed6d46f0-4bca-403b-92b3-99cc6912c5e9",
+										"exec": [
+											"pm.environment.set(\"roomId\", 999);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hostRoom}}/room/{{roomId}}",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"{{roomId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[200] View Specific Room",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "90a2f838-4cd1-4b12-bd62-9b6bbe2ded3b",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"pm.test(\"Status Code returned is 200\", function () {",
+											"    pm.expect(statusCode).to.equal(200);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+											"});",
+											"",
+											"pm.test(\"The 'roomid' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"roomid\", 1);",
+											"});",
+											"",
+											"",
+											"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"roomNumber\", 101);",
+											"});",
+											"",
+											"pm.test(\"The 'type' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"type\", \"single\");",
+											"});",
+											"",
+											"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"accessible\", true);",
+											"});",
+											"",
+											"pm.test(\"The 'image' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room2.jpg\");",
+											"});",
+											"",
+											"pm.test(\"The 'description' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"description\", \"Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.\");",
+											"});",
+											"",
+											"pm.test(\"The 'features' array contains the desired values\", function () {",
+											"    pm.expect(body.features).to.contain(\"TV\");",
+											"    pm.expect(body.features).to.contain(\"WiFi\");",
+											"    pm.expect(body.features).to.contain(\"Safe\");",
+											"});",
+											"",
+											"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
+											"    pm.expect(body).to.have.property(\"roomPrice\", 100);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "b82592bc-57ad-47a4-b259-b87d0a7577be",
+										"exec": [
+											"pm.environment.set(\"roomId\", 1);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hostRoom}}/room/{{roomId}}",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"{{roomId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1bedfde9-c430-4f96-ad93-cb3966c3c38b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "3d43fa1b-c33c-4fd4-976c-5c46418d12ce",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Update Room",
+					"item": [
+						{
+							"name": "BEFORE ALL:",
+							"item": [
+								{
+									"name": "[200] Login - Success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "927a70e9-7ef6-4c27-a678-af265f0c70a6",
+												"exec": [
+													"const body = pm.response.json();",
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 200\", function() {",
+													"    pm.expect(statusCode).to.equal(200);",
+													"});",
+													"",
+													"pm.test(\"Token is returned\", function() {",
+													"    pm.expect(body).to.have.property(\"token\");",
+													"    pm.expect(body.token).to.not.be.empty;",
+													"    pm.environment.set(\"token\", body.token);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostAuth}}/auth/login",
+											"host": [
+												"{{hostAuth}}"
+											],
+											"path": [
+												"auth",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[201] Create Room - Room 55",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1da48de1-26b0-4553-a8a4-de782bf88c7b",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 201\", function () {",
+													"    pm.expect(statusCode).to.equal(201);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+													"    pm.environment.set(\"roomId\", body.roomid);",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomNumber\", 55);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"type\", \"Double\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"accessible\", false);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room55.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"description\", \"Example description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the desired values\", function () {",
+													"    pm.expect(body.features).to.contain(\"TV\");",
+													"    pm.expect(body.features).to.contain(\"WiFi\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomPrice\", 50);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room55.jpg\",\n    \"roomNumber\": 55,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Negative Tests",
+							"item": [
+								{
+									"name": "[404] Update Room - Room Does Not Exist",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "9f088e71-7af2-4bda-8b0b-56f468338f88",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 404\", function () {",
+													"    pm.expect(statusCode).to.equal(404);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "f0517e64-ba21-494f-ac2e-44c103657147",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Cookie",
+												"value": "token={{token}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 999,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/999",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												"999"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Success",
+							"item": [
+								{
+									"name": "[202] Update Room",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "d86c4a36-162f-425d-bc49-b2689b4e94b3",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 202\", function () {",
+													"    pm.expect(statusCode).to.equal(202);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomNumber\", 55);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"type\", \"Single\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"accessible\", true);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room55b.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"description\", \"Updated description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the updated values\", function () {",
+													"    pm.expect(body.features).to.have.a.lengthOf(2);",
+													"    pm.expect(body.features).to.contain(\"Gym\");",
+													"    pm.expect(body.features).to.contain(\"Swimming Pool\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomPrice\", 100);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "e7fb6a2e-4d5b-441a-a870-b4d6a3298c8f",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": true,\n    \"description\": \"Updated description goes here\",\n    \"features\": [\n        \"Swimming Pool\",\n        \"Gym\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room55b.jpg\",\n    \"roomNumber\": 55,\n    \"roomPrice\": 100,\n    \"type\": \"Single\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/{{roomId}}",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												"{{roomId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[200] View Specific Room - Confirm Updated Values",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "cf02a294-c2cd-4a65-9233-9706d2b7ac22",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 200\", function () {",
+													"    pm.expect(statusCode).to.equal(200);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomNumber\", 55);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"type\", \"Single\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"accessible\", true);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room55b.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"description\", \"Updated description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the updated values\", function () {",
+													"    pm.expect(body.features).to.have.a.lengthOf(2);",
+													"    pm.expect(body.features).to.contain(\"Gym\");",
+													"    pm.expect(body.features).to.contain(\"Swimming Pool\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the updated value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomPrice\", 100);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "66ec1739-3728-450b-838f-e24ef81cf07a",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{hostRoom}}/room/{{roomId}}",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												"{{roomId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[200] View All Rooms - Confirm Updated Values",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "b29a7f0a-f5aa-49b3-8e78-12aa4ade90a6",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 200\", function () {",
+													"    pm.expect(statusCode).to.equal(200);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'All Rooms' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaAllRooms\"));",
+													"});",
+													"",
+													"pm.test(\"The 'rooms' array contains 2 rooms\", function () {",
+													"    pm.expect(body.rooms).to.have.a.lengthOf(2);",
+													"});",
+													"",
+													"const updatedRoom = body.rooms.find(function(room) {",
+													"    return room.roomid == pm.environment.get(\"roomId\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"roomNumber\", 55);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"type\", \"Single\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"accessible\", true);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room55b.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"description\", \"Updated description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the updated values\", function () {",
+													"    pm.expect(updatedRoom.features).to.have.a.lengthOf(2);",
+													"    pm.expect(updatedRoom.features).to.contain(\"Gym\");",
+													"    pm.expect(updatedRoom.features).to.contain(\"Swimming Pool\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the updated value\", function () {",
+													"    pm.expect(updatedRoom).to.have.property(\"roomPrice\", 100);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "AFTER ALL:",
+							"item": [
+								{
+									"name": "[202] Delete Room",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "f4bc6828-19f8-4bf5-bd0b-65ce58691d08",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 202\", function () {",
+													"    pm.expect(statusCode).to.equal(202);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/{{roomId}}",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												"{{roomId}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b5aceea6-258d-411b-8ee1-a85433a7f036",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "881a1f22-b4d1-4e3e-9668-3cf8cdd1da69",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Delete Room",
+					"item": [
+						{
+							"name": "BEFORE ALL:",
+							"item": [
+								{
+									"name": "[200] Login - Success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "d1ed8388-a6d5-4fe6-a698-27441b121b53",
+												"exec": [
+													"const body = pm.response.json();",
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 200\", function() {",
+													"    pm.expect(statusCode).to.equal(200);",
+													"});",
+													"",
+													"pm.test(\"Token is returned\", function() {",
+													"    pm.expect(body).to.have.property(\"token\");",
+													"    pm.expect(body.token).to.not.be.empty;",
+													"    pm.environment.set(\"token\", body.token);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostAuth}}/auth/login",
+											"host": [
+												"{{hostAuth}}"
+											],
+											"path": [
+												"auth",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[201] Create Room - Room 55",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "bf46a0c1-891d-46bd-ad6b-b2852e0e105b",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 201\", function () {",
+													"    pm.expect(statusCode).to.equal(201);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+													"    pm.environment.set(\"roomId\", body.roomid);",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomNumber\", 55);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"type\", \"Double\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"accessible\", false);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room55.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"description\", \"Example description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the desired values\", function () {",
+													"    pm.expect(body.features).to.contain(\"TV\");",
+													"    pm.expect(body.features).to.contain(\"WiFi\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomPrice\", 50);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room55.jpg\",\n    \"roomNumber\": 55,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "[404] Delete Room - Room Does Not Exist",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7dca4e98-9101-42ef-831b-f0f461fe4ebe",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"",
+											"pm.test(\"Status Code returned is 404\", function () {",
+											"    pm.expect(statusCode).to.equal(404);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "8e335eb0-9b68-4367-850f-b48a0bf66512",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Cookie",
+										"type": "text",
+										"value": "token={{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hostRoom}}/room/999",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"999"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[202] Delete Room",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "ad65f7a3-c714-4b1e-8d5b-0034e13a8e1d",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"",
+											"pm.test(\"Status Code returned is 202\", function () {",
+											"    pm.expect(statusCode).to.equal(202);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "0b77089a-66f0-4b4d-b228-e448cf1eccc8",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Cookie",
+										"type": "text",
+										"value": "token={{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hostRoom}}/room/{{roomId}}",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"{{roomId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[404] View Specific Room - Confirm Deleted Room",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "fb549261-7f35-4717-8118-c10c38d06144",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"// We are receiving a 500. Shouldn't this be a 404?",
+											"pm.test(\"KNOWN FAILURE - Status Code returned is 404\", function () {",
+											"    pm.expect(statusCode).to.equal(404);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'Room Error' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoomError\"));",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "2ced795f-e619-4c12-9706-8f7a94ce830a",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hostRoom}}/room/{{roomId}}",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										"{{roomId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[200] View All Rooms - Confirm Deleted Room",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "e3a5bf06-7bb8-42f4-a5aa-fc17e326486a",
+										"exec": [
+											"const statusCode = pm.response.code;",
+											"const body = pm.response.json();",
+											"",
+											"pm.test(\"Status Code returned is 200\", function () {",
+											"    pm.expect(statusCode).to.equal(200);",
+											"});",
+											"",
+											"pm.test(\"Expects the response body to match the 'All Rooms' schema\", function () {",
+											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaAllRooms\"));",
+											"});",
+											"",
+											"pm.test(\"The 'rooms' array contains 1 room\", function () {",
+											"    pm.expect(body.rooms).to.have.a.lengthOf(1);",
+											"});",
+											"",
+											"const deletedRoom = body.rooms.find(function(room) {",
+											"    return room.roomid == pm.environment.get(\"roomId\");",
+											"});",
+											"",
+											"pm.test(\"The deleted room is not displayed\", function () {",
+											"    pm.expect(deletedRoom).to.be.undefined;",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hostRoom}}/room/",
+									"host": [
+										"{{hostRoom}}"
+									],
+									"path": [
+										"room",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "028080a9-5dae-4de2-b9d2-bafe14226e22",
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.set(\"schemaAllRooms\", {",
+							"    \"type\": \"object\",",
+							"    \"required\": [",
+							"        \"rooms\"",
+							"    ],",
+							"    \"properties\": {",
+							"        \"rooms\": {",
+							"            \"type\": \"array\",",
+							"            \"additionalItems\": true,",
+							"            \"items\": {",
+							"                \"allOf\": [",
+							"                    {",
+							"                        \"type\": \"object\",",
+							"                        \"required\": [",
+							"                            \"roomid\",",
+							"                            \"roomNumber\",",
+							"                            \"type\",",
+							"                            \"accessible\",",
+							"                            \"image\",",
+							"                            \"description\",",
+							"                            \"features\",",
+							"                            \"roomPrice\"",
+							"                        ],",
+							"                        \"properties\": {",
+							"                            \"roomid\": {",
+							"                                \"type\": \"integer\",",
+							"                            },",
+							"                            \"roomNumber\": {",
+							"                                \"type\": \"integer\",",
+							"                                \"minimum\": 1,",
+							"                                \"maximum\": 999",
+							"                            },",
+							"                            \"type\": {",
+							"                                \"type\": \"string\",",
+							"                            },",
+							"                            \"accessible\": {",
+							"                                \"type\": \"boolean\",",
+							"                            },",
+							"                            \"image\": {",
+							"                                \"type\": \"string\",",
+							"                            },",
+							"                            \"description\": {",
+							"                                \"type\": \"string\",",
+							"                            },",
+							"                            \"features\": {",
+							"                                \"type\": \"array\",",
+							"                                \"additionalItems\": true,",
+							"                                \"items\": {",
+							"                                    \"allOf\": [",
+							"                                        {",
+							"                                            \"type\": \"string\",",
+							"                                        }",
+							"                                    ]",
+							"                                }",
+							"                            },",
+							"                            \"roomPrice\": {",
+							"                                \"type\": \"integer\",",
+							"                                \"minimum\": 0,",
+							"                                \"maximum\": 999",
+							"                            }",
+							"                        },",
+							"                        \"additionalProperties\": true",
+							"                    }",
+							"                ]",
+							"            }",
+							"        }",
+							"    },",
+							"    \"additionalProperties\": true",
+							"});",
+							"",
+							"pm.environment.set(\"schemaRoom\", {",
+							"    \"type\": \"object\",",
+							"    \"required\": [",
+							"        \"roomid\",",
+							"        \"roomNumber\",",
+							"        \"type\",",
+							"        \"accessible\",",
+							"        \"image\",",
+							"        \"description\",",
+							"        \"features\",",
+							"        \"roomPrice\"",
+							"    ],",
+							"    \"properties\": {",
+							"        \"roomid\": {",
+							"            \"type\": \"integer\",",
+							"        },",
+							"        \"roomNumber\": {",
+							"            \"type\": \"integer\",",
+							"            \"minimum\": 1,",
+							"            \"maximum\": 999",
+							"        },",
+							"        \"type\": {",
+							"            \"type\": \"string\",",
+							"        },",
+							"        \"accessible\": {",
+							"            \"type\": \"boolean\",",
+							"        },",
+							"        \"image\": {",
+							"            \"type\": \"string\",",
+							"        },",
+							"        \"description\": {",
+							"            \"type\": \"string\",",
+							"        },",
+							"        \"features\": {",
+							"            \"type\": \"array\",",
+							"            \"additionalItems\": true,",
+							"            \"items\": {",
+							"                \"allOf\": [",
+							"                    {",
+							"                        \"type\": \"string\",",
+							"                    }",
+							"                ]",
+							"            }",
+							"        },",
+							"        \"roomPrice\": {",
+							"            \"type\": \"integer\",",
+							"            \"minimum\": 0,",
+							"            \"maximum\": 999",
+							"        }",
+							"    },",
+							"    \"additionalProperties\": true",
+							"});",
+							"",
+							"pm.environment.set(\"schemaRoomError\", {",
+							"    \"type\": \"object\",",
+							"    \"required\": [",
+							"        \"timestamp\",",
+							"        \"status\",",
+							"        \"error\",",
+							"        \"message\",",
+							"        \"path\"",
+							"    ],",
+							"    \"properties\": {",
+							"        \"timestamp\": {",
+							"            \"type\": \"string\",",
+							"            \"minLength\": 28,",
+							"            \"maxLenth\": 28",
+							"",
+							"        },",
+							"        \"status\": {",
+							"            \"type\": \"integer\",",
+							"            \"minimum\": 400",
+							"        },",
+							"        \"error\": {",
+							"            \"type\": \"string\",",
+							"            \"minLength\": 1,",
+							"        },",
+							"        \"message\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"path\": {",
+							"            \"type\": \"string\",",
+							"            \"minLength\": 7,",
+							"        }",
+							"    },",
+							"    \"additionalProperties\": false",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ffda1570-abd4-4808-b7a2-fd56adfd398a",
 						"type": "text/javascript",
 						"exec": [
 							""
