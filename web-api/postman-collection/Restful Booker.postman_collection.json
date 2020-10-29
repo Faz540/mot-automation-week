@@ -7516,139 +7516,335 @@
 							"_postman_isSubFolder": true
 						},
 						{
-							"name": "[201] Create Room - Room 666",
-							"event": [
+							"name": "Negative Tests",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"id": "9715d6a9-f301-4740-b6c8-a55637a4d7fe",
-										"exec": [
-											"const statusCode = pm.response.code;",
-											"const body = pm.response.json();",
-											"",
-											"pm.test(\"Status Code returned is 201\", function () {",
-											"    pm.expect(statusCode).to.equal(201);",
-											"});",
-											"",
-											"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
-											"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
-											"    pm.environment.set(\"roomId\", body.roomid);",
-											"});",
-											"",
-											"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"roomNumber\", 666);",
-											"});",
-											"",
-											"pm.test(\"The 'type' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"type\", \"Double\");",
-											"});",
-											"",
-											"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"accessible\", false);",
-											"});",
-											"",
-											"pm.test(\"The 'image' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\");",
-											"});",
-											"",
-											"pm.test(\"The 'description' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"description\", \"Example description goes here\");",
-											"});",
-											"",
-											"pm.test(\"The 'features' array contains the desired values\", function () {",
-											"    pm.expect(body.features).to.contain(\"TV\");",
-											"    pm.expect(body.features).to.contain(\"WiFi\");",
-											"});",
-											"",
-											"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
-											"    pm.expect(body).to.have.property(\"roomPrice\", 50);",
-											"});",
-											""
+									"name": "[403] Create Room - No Token Supplied",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "a5bb661f-564c-4925-8132-e083834c87f8",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 403\", function () {",
+													"    pm.expect(statusCode).to.equal(403);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 666,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[400] Create Room - Missing Prop: roomNumber",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "da2aa76c-1dde-4f72-a984-dcc81bfe9d90",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 400\", function () {",
+													"    pm.expect(statusCode).to.equal(400);",
+													"});",
+													"",
+													"pm.test(\"'errorCode' is 400\", function () {",
+													"    pm.expect(body).to.have.property(\"errorCode\", 400);",
+													"});",
+													"",
+													"pm.test(\"'error' is 'BAD_REQUEST'\", function () {",
+													"    pm.expect(body).to.have.property(\"error\", \"BAD_REQUEST\");",
+													"});",
+													"",
+													"pm.test(\"'fieldErrors' array contains 1 error\", function () {",
+													"    pm.expect(body.fieldErrors).to.have.lengthOf(1);",
+													"});",
+													"",
+													"pm.test(\"'fieldErrors' array contains 'must be greater than or equal to 1' error\", function () {",
+													"    pm.expect(body.fieldErrors).to.include(\"must be greater than or equal to 1\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cookie",
+												"value": "token={{token}}",
+												"type": "text"
+											}
 										],
-										"type": "text/javascript"
-									}
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[400] Create Room - Missing Prop: type",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "4fcf7d0d-348f-46ff-b37f-3e03b0d11dc1",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 400\", function () {",
+													"    pm.expect(statusCode).to.equal(400);",
+													"});",
+													"",
+													"pm.test(\"'errorCode' is 400\", function () {",
+													"    pm.expect(body).to.have.property(\"errorCode\", 400);",
+													"});",
+													"",
+													"pm.test(\"'error' is 'BAD_REQUEST'\", function () {",
+													"    pm.expect(body).to.have.property(\"error\", \"BAD_REQUEST\");",
+													"});",
+													"",
+													"pm.test(\"'fieldErrors' array contains 1 error\", function () {",
+													"    pm.expect(body.fieldErrors).to.have.lengthOf(1);",
+													"});",
+													"",
+													"pm.test(\"'fieldErrors' array contains 'Type must be set' error\", function () {",
+													"    pm.expect(body.fieldErrors).to.include(\"Type must be set\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 666,\n    \"roomPrice\": 50\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
 								}
 							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Cookie",
-										"value": "token={{token}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 666,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{hostRoom}}/room/",
-									"host": [
-										"{{hostRoom}}"
-									],
-									"path": [
-										"room",
-										""
-									]
-								}
-							},
-							"response": []
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
-							"name": "[202] Delete Room - Room 666",
-							"event": [
+							"name": "Success",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"id": "7a737562-3e8f-4437-8d82-d2ae949e9e70",
-										"exec": [
-											"const statusCode = pm.response.code;",
-											"",
-											"pm.test(\"Status Code returned is 202\", function () {",
-											"    pm.expect(statusCode).to.equal(202);",
-											"});",
-											""
+									"name": "[201] Create Room - Room 666",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "9715d6a9-f301-4740-b6c8-a55637a4d7fe",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"const body = pm.response.json();",
+													"",
+													"pm.test(\"Status Code returned is 201\", function () {",
+													"    pm.expect(statusCode).to.equal(201);",
+													"});",
+													"",
+													"pm.test(\"Expects the response body to match the 'Room' schema\", function () {",
+													"    pm.response.to.have.jsonSchema(pm.environment.get(\"schemaRoom\"));",
+													"    pm.environment.set(\"roomId\", body.roomid);",
+													"});",
+													"",
+													"pm.test(\"The 'roomNumber' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomNumber\", 666);",
+													"});",
+													"",
+													"pm.test(\"The 'type' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"type\", \"Double\");",
+													"});",
+													"",
+													"pm.test(\"The 'accessible' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"accessible\", false);",
+													"});",
+													"",
+													"pm.test(\"The 'image' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"image\", \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\");",
+													"});",
+													"",
+													"pm.test(\"The 'description' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"description\", \"Example description goes here\");",
+													"});",
+													"",
+													"pm.test(\"The 'features' array contains the desired values\", function () {",
+													"    pm.expect(body.features).to.contain(\"TV\");",
+													"    pm.expect(body.features).to.contain(\"WiFi\");",
+													"});",
+													"",
+													"pm.test(\"The 'roomPrice' displayed is the desired value\", function () {",
+													"    pm.expect(body).to.have.property(\"roomPrice\", 50);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cookie",
+												"value": "token={{token}}",
+												"type": "text"
+											}
 										],
-										"type": "text/javascript"
-									}
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"accessible\": false,\n    \"description\": \"Example description goes here\",\n    \"features\": [\n        \"TV\",\n        \"WiFi\"\n    ],\n    \"image\": \"https://www.mwtestconsultancy.co.uk/img/testim/room666.jpg\",\n    \"roomNumber\": 666,\n    \"roomPrice\": 50,\n    \"type\": \"Double\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												""
+											]
+										}
+									},
+									"response": []
 								}
 							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Cookie",
-										"type": "text",
-										"value": "token={{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "AFTER ALL:",
+							"item": [
+								{
+									"name": "[202] Delete Room - Room 666",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7a737562-3e8f-4437-8d82-d2ae949e9e70",
+												"exec": [
+													"const statusCode = pm.response.code;",
+													"",
+													"pm.test(\"Status Code returned is 202\", function () {",
+													"    pm.expect(statusCode).to.equal(202);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									}
-								},
-								"url": {
-									"raw": "{{hostRoom}}/room/{{roomId}}",
-									"host": [
-										"{{hostRoom}}"
 									],
-									"path": [
-										"room",
-										"{{roomId}}"
-									]
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Cookie",
+												"type": "text",
+												"value": "token={{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{hostRoom}}/room/{{roomId}}",
+											"host": [
+												"{{hostRoom}}"
+											],
+											"path": [
+												"room",
+												"{{roomId}}"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						}
 					],
 					"protocolProfileBehavior": {},
